@@ -1,0 +1,52 @@
+
+
+
+CREATE TABLE IF NOT EXISTS users(
+    id SERIAL PRIMARY KEY NOT NULL,
+    name CHARACTER VARYING(300) NOT NULL,
+    email CHARACTER VARYING(300) NOT NULL UNIQUE,
+    password_hash CHARACTER VARYING(300) NOT NULL,
+    created_account TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+);
+
+CREATE TABLE IF NOT EXISTS refresh_tokens(
+    id SERIAL PRIMARY KEY NOT NULL,
+    value CHARACTER VARYING(300) NOT NULL,
+    users_id INT REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS event_type(
+    id SERIAL PRIMARY KEY NOT NULL,
+    name CHARACTER VARYING(300) NOT NULL UNIQUE
+);
+
+INSERT INTO event_type(name) VALUES ('feeding'), ('shedding')
+    ON CONFLICT (name) DO NOTHING;
+
+
+
+CREATE TABLE IF NOT EXISTS gender(
+    id SERIAL PRIMARY KEY NOT NULL,
+    name CHARACTER VARYING(6) NOT NULL UNIQUE
+);
+
+INSERT INTO gender(name) VALUES ('male'), ('female')
+    ON CONFLICT (name) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS snake_cards(
+    id SERIAL PRIMARY KEY NOT NULL,
+    name CHARACTER VARYING(300) NOT NULL,
+    species CHARACTER VARYING(300) NOT NULL,
+    morph CHARACTER VARYING(300) NULL,
+    dateOfBirth TIMESTAMPTZ NULL,
+    card_created TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    gender_id INT REFERENCES gender(id),
+    users_id INT REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS snake_events(
+    id SERIAL PRIMARY KEY NOT NULL,
+    event_type_id INT REFERENCES event_type(id),
+    snake_cards_id INT REFERENCES snake_cards(id),
+    comment TEXT NOT NULL DEFAULT ''
+);
